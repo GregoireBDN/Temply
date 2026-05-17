@@ -1,0 +1,271 @@
+/**
+ * Dark Mode Variant
+ * Enables dark mode styling via class-based dark mode
+ * Usage: dark:bg-background
+ */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    &:not(:is(.light, .light *)) {
+      @slot;
+    }
+  }
+  &:is(.dark, .dark *) {
+    @slot;
+  }
+}
+
+/* =============================================================================
+ * THEME CONFIGURATION
+ * ============================================================================= */
+
+/**
+ * Tailwind Theme Inline Configuration
+ * Maps CSS custom properties to Tailwind's theme system
+ * This allows using custom properties with Tailwind utilities
+ */
+@theme inline {
+  /* Typography */
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* Base Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Brand Colors */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Surface Colors */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* State Colors */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Semantic Colors */
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  /* UI Elements */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Chart Colors */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar Colors */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Border Radius Scale */
+  --radius-sm: calc(var(--radius) * 0.6); /* 6px (0.375rem) */
+  --radius-md: calc(var(--radius) * 0.8); /* 8px (0.5rem) */
+  --radius-lg: var(--radius); /* 10px (0.625rem) */
+  --radius-xl: calc(var(--radius) * 1.4); /* 14px (0.875rem) */
+  --radius-2xl: calc(var(--radius) * 1.8); /* 18px (1.125rem) */
+  --radius-3xl: calc(var(--radius) * 2.2); /* 22px (1.375rem) */
+  --radius-4xl: calc(var(--radius) * 2.6); /* 26px (1.625rem) */
+}
+
+/* =============================================================================
+ * LIGHT THEME (DEFAULT)
+ * =============================================================================
+ * Warm cream surfaces + periwinkle/royal blue accents (from logo)
+ * Cool-colored accents on warm backgrounds keep the feel soft and cozy
+ * Format: oklch(lightness chroma hue)
+ * ============================================================================= */
+
+:root {
+  --background: oklch(0.975 0.007 260); /* off-white with subtle blue tint */
+  --foreground: oklch(0.22 0.025 55); /* warm dark brown */
+
+  --primary: oklch(0.54 0.2 264); /* logo royal blue */
+  --primary-foreground: oklch(0.98 0 0);
+
+  --secondary: oklch(from var(--background) calc(l - 0.06) c h); /* background - slightly darker */
+  --secondary-foreground: oklch(0.30 0.03 260); /* dark blue-grey, matches bg hue */
+
+  --card: oklch(from var(--background) calc(l + 0.02) c h); /* background + lighter */
+  --card-foreground: var(--foreground);
+  --popover: oklch(from var(--background) calc(l + 0.02) c h);
+  --popover-foreground: var(--foreground);
+
+  --muted: oklch(from var(--background) calc(l - 0.035) c h); /* background - darker */
+  --muted-foreground: oklch(from var(--foreground) calc(l + 0.33) c h); /* foreground + lighter */
+
+  --accent: oklch(0.93 0.05 270); /* soft periwinkle hover */
+  --accent-foreground: oklch(0.22 0.04 265);
+
+  --destructive: oklch(61.892% 0.16585 18.437); /* coral-red */
+  --destructive-foreground: oklch(0.98 0 0);
+  --success: oklch(83.329% 0.20139 140.499);
+  --success-foreground: oklch(from var(--success) calc(l - 0.50) calc(c + 0.08) h);
+  --warning: oklch(80.994% 0.11089 76.078);
+  --warning-foreground: oklch(from var(--warning) calc(l - 0.45) calc(c + 0.06) h);
+  --info: oklch(78.547% 0.13421 218.12); /* sky blue — aligns with logo */
+  --info-foreground: oklch(from var(--info) calc(l - 0.48) calc(c + 0.06) h);
+
+  --border: oklch(from var(--background) calc(l - 0.085) c h); /* background - darker */
+  --input: oklch(from var(--background) calc(l - 0.085) c h);
+  --ring: var(--primary);
+
+  --chart-1: var(--primary); /* royal blue */
+  --chart-2: oklch(0.72 0.16 213); /* sky blue */
+  --chart-3: oklch(0.5 0.22 276); /* violet-blue */
+  --chart-4: oklch(0.82 0.09 213); /* pale sky */
+  --chart-5: oklch(0.4 0.2 265); /* deep blue */
+
+  --sidebar: oklch(from var(--background) calc(l - 0.005) c h);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  --radius: 0.75rem;
+
+  --header-bg: oklch(0.975 0.007 260 / 80%);
+  --line: var(--border);
+}
+
+/* =============================================================================
+ * DARK THEME
+ * =============================================================================
+ * Deep indigo surfaces + sky blue accents + warm cream text
+ * Warm cream foreground is what keeps this dark palette cozy
+ * ============================================================================= */
+
+.dark {
+  --background: oklch(0.16 0.03 272); /* deep indigo */
+  --foreground: oklch(0.94 0.018 82); /* warm cream — key to warmth */
+
+  --primary: oklch(0.72 0.16 213); /* logo sky blue */
+  --primary-foreground: oklch(0.16 0.03 272);
+
+  --secondary: oklch(from var(--background) calc(l + 0.08) c h); /* background + lighter */
+  --secondary-foreground: var(--foreground);
+
+  --card: oklch(from var(--background) calc(l + 0.05) c h); /* background + lighter */
+  --card-foreground: var(--foreground);
+  --popover: oklch(from var(--background) calc(l + 0.05) c h);
+  --popover-foreground: var(--foreground);
+
+  --muted: oklch(from var(--background) calc(l + 0.08) c h); /* background + lighter */
+  --muted-foreground: oklch(from var(--foreground) calc(l - 0.26) c h); /* foreground - dimmer */
+
+  --accent: oklch(from var(--background) calc(l + 0.08) c h);
+  --accent-foreground: var(--foreground);
+
+  --destructive: oklch(0.7 0.19 22);
+  --destructive-foreground: oklch(0.94 0.018 82);
+  --success: oklch(0.7 0.15 145);
+  --success-foreground: oklch(from var(--success) calc(l - 0.50) calc(c + 0.08) h);
+  --warning: oklch(0.8 0.16 75); /* warm amber — keeps warmth */
+  --warning-foreground: oklch(from var(--warning) calc(l - 0.45) calc(c + 0.06) h);
+  --info: oklch(0.76 0.12 230); /* lighter cyan — distinct from primary */
+  --info-foreground: oklch(from var(--info) calc(l - 0.48) calc(c + 0.06) h);
+
+  --border: oklch(from var(--foreground) l c h / 10%); /* foreground at 10% opacity */
+  --input: oklch(from var(--foreground) l c h / 15%); /* foreground at 15% opacity */
+  --ring: var(--primary);
+
+  --chart-1: oklch(0.72 0.16 213); /* sky blue */
+  --chart-2: oklch(0.54 0.2 264); /* royal blue */
+  --chart-3: oklch(0.5 0.22 276); /* violet-blue */
+  --chart-4: oklch(0.82 0.09 213); /* pale sky */
+  --chart-5: oklch(0.4 0.2 265); /* deep blue */
+
+  --sidebar: oklch(from var(--background) calc(l + 0.05) c h);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(from var(--background) calc(l + 0.08) c h);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  --header-bg: oklch(0.16 0.03 272 / 80%);
+  --line: var(--border);
+}
+
+/* =============================================================================
+ * SYSTEM DARK MODE (no explicit preference set)
+ * Mirrors .dark variables so the browser color scheme preference is respected
+ * without any JavaScript. Overridden by .dark / .light class on <html>.
+ * ============================================================================= */
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --background: oklch(0.16 0.03 272);
+    --foreground: oklch(0.94 0.018 82);
+
+    --primary: oklch(0.72 0.16 213);
+    --primary-foreground: oklch(0.16 0.03 272);
+
+    --secondary: oklch(from var(--background) calc(l + 0.08) c h);
+    --secondary-foreground: var(--foreground);
+
+    --card: oklch(from var(--background) calc(l + 0.05) c h);
+    --card-foreground: var(--foreground);
+    --popover: oklch(from var(--background) calc(l + 0.05) c h);
+    --popover-foreground: var(--foreground);
+
+    --muted: oklch(from var(--background) calc(l + 0.08) c h);
+    --muted-foreground: oklch(from var(--foreground) calc(l - 0.26) c h);
+
+    --accent: oklch(from var(--background) calc(l + 0.08) c h);
+    --accent-foreground: var(--foreground);
+
+    --destructive: oklch(0.7 0.19 22);
+    --destructive-foreground: oklch(0.94 0.018 82);
+    --success: oklch(0.7 0.15 145);
+    --success-foreground: oklch(from var(--success) calc(l - 0.50) calc(c + 0.08) h);
+    --warning: oklch(0.8 0.16 75);
+    --warning-foreground: oklch(from var(--warning) calc(l - 0.45) calc(c + 0.06) h);
+    --info: oklch(0.76 0.12 230);
+    --info-foreground: oklch(from var(--info) calc(l - 0.48) calc(c + 0.06) h);
+
+    --border: oklch(from var(--foreground) l c h / 10%);
+    --input: oklch(from var(--foreground) l c h / 15%);
+    --ring: var(--primary);
+
+    --sidebar: oklch(from var(--background) calc(l + 0.05) c h);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: oklch(from var(--background) calc(l + 0.08) c h);
+    --sidebar-accent-foreground: var(--foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+
+    --header-bg: oklch(0.16 0.03 272 / 80%);
+    --line: var(--border);
+  }
+}

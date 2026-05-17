@@ -1,0 +1,7 @@
+{
+  "extends": "@temply/config-typescript/react",
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "compilerOptions": {
+    "types": []
+  }
+}

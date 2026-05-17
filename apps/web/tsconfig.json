@@ -1,0 +1,11 @@
+{
+  "extends": "@temply/config-typescript/react",
+  "include": ["**/*.ts", "**/*.tsx", "eslint.config.js", "prettier.config.js", "vite.config.ts"],
+  "compilerOptions": {
+    "paths": {
+      "#/*": ["./src/*"],
+      "@/*": ["./src/*"],
+      "@temply/shared": ["../../packages/shared/src/index.ts"]
+    }
+  }
+}

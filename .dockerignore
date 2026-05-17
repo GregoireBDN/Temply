@@ -1,0 +1,9 @@
+.git
+**/.turbo
+**/.DS_Store
+**/node_modules
+**/.output
+**/dist
+apps/api/drizzle
+**/.env
+!**/.env.example

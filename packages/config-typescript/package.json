@@ -1,0 +1,10 @@
+{
+  "name": "@temply/config-typescript",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    "./base": "./base.json",
+    "./react": "./react.json",
+    "./nestjs": "./nestjs.json"
+  }
+}

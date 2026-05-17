@@ -1,0 +1,10 @@
+{
+  "extends": "@temply/config-typescript/react",
+  "include": [".storybook/**/*.ts", ".storybook/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
+  "compilerOptions": {
+    "paths": {
+      "@temply/ui": ["../../packages/ui/src/index.ts"],
+      "@temply/ui/*": ["../../packages/ui/src/*"]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+.env
+.env.local
+.turbo
+.nitro
+.output
+.tanstack
+.wrangler
+.vinxi
+__unconfig*
+*.local
