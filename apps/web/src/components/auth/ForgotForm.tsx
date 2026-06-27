@@ -1,7 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { authControllerForgotPassword } from '#/api'
+import { isRateLimited, rateLimitMessage } from '#/lib/api-errors'
 import { forgotSchema, type ForgotValues } from './auth.schemas'
 import { Button, Field, FieldError, FieldLabel, Input } from '@temply/ui'
 
@@ -14,7 +16,11 @@ export function ForgotForm() {
   })
 
   async function onSubmit(values: ForgotValues) {
-    await authControllerForgotPassword({ body: values, throwOnError: false })
+    const res = await authControllerForgotPassword({ body: values, throwOnError: false })
+    if (isRateLimited(res.response)) {
+      toast.error(rateLimitMessage(res.response))
+      return
+    }
     setSent(true)
   }
 

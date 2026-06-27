@@ -1,4 +1,5 @@
 import { authControllerResendVerification, authControllerVerifyEmail } from '#/api'
+import { isRateLimited, rateLimitMessage } from '#/lib/api-errors'
 import { useAuth } from '#/lib/auth-context'
 import { ROUTES } from '#/lib/routes'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -38,7 +39,11 @@ function VerifyEmailPage() {
     const res = await authControllerResendVerification({ throwOnError: false })
     setResending(false)
     if (res.error) {
-      toast.error("Impossible d'envoyer l'email")
+      toast.error(
+        isRateLimited(res.response)
+          ? rateLimitMessage(res.response)
+          : "Impossible d'envoyer l'email",
+      )
       return
     }
     setResendSent(true)

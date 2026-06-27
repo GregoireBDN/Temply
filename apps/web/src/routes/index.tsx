@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { authControllerResendVerification } from '#/api'
 import type { UserDto } from '#/api/types.gen'
+import { isRateLimited, rateLimitMessage } from '#/lib/api-errors'
 import {
   Button,
   Card,
@@ -105,7 +106,11 @@ function VerifyEmailCard({ email }: { email: string }) {
     const res = await authControllerResendVerification({ throwOnError: false })
     setResending(false)
     if (res.error) {
-      toast.error("Impossible d'envoyer l'email")
+      toast.error(
+        isRateLimited(res.response)
+          ? rateLimitMessage(res.response)
+          : "Impossible d'envoyer l'email",
+      )
       return
     }
     setSent(true)

@@ -26,6 +26,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-fastify": "^11.0.0",
     "@nestjs/swagger": "^11.4.3",
+    "@nestjs/throttler": "^6.5.0",
     "@react-email/components": "^1.0.12",
     "@temply/shared": "workspace:*",
     "arctic": "^3.7.0",

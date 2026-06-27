@@ -30,6 +30,14 @@ async function bootstrap() {
     origin: process.env['APP_URL'] ?? 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    // Expose rate-limit headers so the web client can warn the user before
+    // they get blocked (and read the retry delay once they are).
+    exposedHeaders: [
+      'Retry-After',
+      'X-RateLimit-Limit',
+      'X-RateLimit-Remaining',
+      'X-RateLimit-Reset',
+    ],
   })
   app.setGlobalPrefix('api')
 

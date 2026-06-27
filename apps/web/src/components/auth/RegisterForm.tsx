@@ -1,4 +1,5 @@
 import { authControllerRegister } from '#/api'
+import { isRateLimited, rateLimitMessage } from '#/lib/api-errors'
 import { useAuth } from '#/lib/auth-context'
 import { ROUTES } from '#/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,7 +24,11 @@ export function RegisterForm() {
       throwOnError: false,
     })
     if (res.error) {
-      toast.error(getErrorMessage(res.error))
+      toast.error(
+        isRateLimited(res.response)
+          ? rateLimitMessage(res.response)
+          : getErrorMessage(res.error),
+      )
       return
     }
     await refresh()

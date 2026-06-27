@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { authControllerLogin } from '#/api'
+import { isRateLimited, rateLimitMessage, rateLimitWarning } from '#/lib/api-errors'
 import { useAuth } from '#/lib/auth-context'
 import { ROUTES } from '#/lib/routes'
 import { Alert, AlertAction, AlertDescription, Button, Field, FieldError, FieldLabel, Input, PasswordInput } from '@temply/ui'
@@ -27,7 +28,16 @@ export function LoginForm({ onSwitchToForgot }: LoginFormProps) {
     setError(null)
     const res = await authControllerLogin({ body: values, throwOnError: false })
     if (res.error) {
-      setError('Email ou mot de passe incorrect')
+      if (isRateLimited(res.response)) {
+        setError(rateLimitMessage(res.response))
+        return
+      }
+      const warning = rateLimitWarning(res.response)
+      setError(
+        warning
+          ? `Email ou mot de passe incorrect. ${warning}`
+          : 'Email ou mot de passe incorrect',
+      )
       return
     }
     await refresh()

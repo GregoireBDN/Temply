@@ -10,7 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ApiBody, ApiCookieAuth, ApiCreatedResponse, ApiExcludeEndpoint, ApiOkResponse, ApiTags } from '@nestjs/swagger'
+import { Throttle } from '@nestjs/throttler'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { THROTTLE_LIMITS, THROTTLE_TTL } from '#/throttle.config'
 import { AuthService } from '#/auth/auth.service'
 import {
   ForgotPasswordDto,
@@ -117,6 +119,7 @@ export class AuthController {
   }
 
   @Post('register')
+  @Throttle({ default: { ttl: THROTTLE_TTL, limit: THROTTLE_LIMITS.register } })
   @ApiBody({ type: RegisterDto })
   @ApiCreatedResponse({ schema: { example: { success: true } } })
   async register(@Body() dto: RegisterDto, @Res() reply: FastifyReply) {
@@ -128,6 +131,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @Throttle({ default: { ttl: THROTTLE_TTL, limit: THROTTLE_LIMITS.login } })
   @HttpCode(200)
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ schema: { example: { success: true } } })
@@ -145,6 +149,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
+  @Throttle({ default: { ttl: THROTTLE_TTL, limit: THROTTLE_LIMITS.forgotPassword } })
   @HttpCode(200)
   @ApiBody({ type: ForgotPasswordDto })
   @ApiOkResponse({ schema: { example: { success: true } } })
@@ -172,6 +177,7 @@ export class AuthController {
   }
 
   @Post('resend-verification')
+  @Throttle({ default: { ttl: THROTTLE_TTL, limit: THROTTLE_LIMITS.resendVerification } })
   @HttpCode(200)
   @UseGuards(JwtGuard)
   @ApiCookieAuth('token')
