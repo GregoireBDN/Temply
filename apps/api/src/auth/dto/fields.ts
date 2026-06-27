@@ -6,4 +6,6 @@ export const EmailField = () => applyDecorators(IsEmail(), ApiProperty({ type: S
 
 export const PasswordField = () => applyDecorators(IsString(), MinLength(8), ApiProperty({ type: String }))
 
+export const NameField = () => applyDecorators(IsString(), MinLength(1), ApiProperty({ type: String }))
+
 export const TokenField = () => applyDecorators(IsString(), ApiProperty({ type: String }))

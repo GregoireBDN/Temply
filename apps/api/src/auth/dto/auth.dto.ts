@@ -1,22 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { EmailField, PasswordField, TokenField } from './fields'
+import { EmailField, NameField, PasswordField, TokenField } from './fields'
 
 export class RegisterDto {
-  @ApiProperty({ type: String })
+  @EmailField()
   email!: string
 
-  @ApiProperty({ type: String })
+  @NameField()
   name!: string
 
-  @ApiProperty({ type: String })
+  @PasswordField()
   password!: string
 }
 
 export class LoginDto {
-  @ApiProperty({ type: String })
+  @EmailField()
   email!: string
 
-  @ApiProperty({ type: String })
+  @PasswordField()
   password!: string
 }
 

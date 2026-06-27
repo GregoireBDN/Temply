@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 process.loadEnvFile()
+import { ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import {
   FastifyAdapter,
@@ -16,6 +17,14 @@ async function bootstrap() {
   )
 
   await app.register(fastifyCookie)
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  )
 
   app.enableCors({
     origin: process.env['APP_URL'] ?? 'http://localhost:3000',
