@@ -15,7 +15,7 @@ async function importEnv(overrides: Record<string, string | undefined>) {
     }
   }
   try {
-    return await import('./env')
+    return await import('./env.js')
   } finally {
     process.env = original
   }
