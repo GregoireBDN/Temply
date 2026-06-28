@@ -41,6 +41,7 @@ function loadEnv() {
   return {
     ...parsed.data,
     JWT_SECRET: parsed.data.JWT_SECRET ?? randomBytes(32).toString('hex'),
+    isProduction: parsed.data.NODE_ENV === 'production',
   }
 }
 

@@ -22,9 +22,16 @@ import {
   VerifyEmailDto,
 } from '#/auth/dto/auth.dto'
 import { JwtGuard } from '#/auth/guards/jwt.guard'
+import { env } from '#/config/env'
 import { UserDto } from '#/user/user.dto'
 
-const COOKIE_DEFAULTS = { httpOnly: true, path: '/', sameSite: 'lax' } as const
+const COOKIE_DEFAULTS = {
+  httpOnly: true,
+  path: '/',
+  sameSite: 'lax',
+  secure: env.isProduction,
+} as const
+const COOKIE_SECURE = env.isProduction ? '; Secure' : ''
 const OAUTH_STATE_TTL = 60 * 5
 const TOKEN_TTL = 60 * 60 * 24 * 7
 
@@ -96,11 +103,11 @@ export class AuthController {
   }
 
   private cookie(name: string, value: string, maxAge: number): string {
-    return `${name}=${value}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Lax`
+    return `${name}=${value}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Lax${COOKIE_SECURE}`
   }
 
   private clearCookie(name: string): string {
-    return `${name}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax`
+    return `${name}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax${COOKIE_SECURE}`
   }
 
   private sendRedirect(reply: FastifyReply, url: string, cookies: string[]) {
