@@ -14,7 +14,6 @@ Crée un commit git des modifications en cours.
    - `scope` = la zone touchée (ex: `api`, `web`, `ui`)
    - Inclure un numéro de ticket s'il est disponible (nom de branche ou contexte), sinon l'omettre — ne jamais l'inventer.
 4. **N'ajoute JAMAIS** de trailer `Co-Authored-By: Claude` ni de footer « Generated with Claude Code ». Le message doit contenir uniquement la ligne de sujet.
-5. Si la branche courante est `main`, crée d'abord une branche avant de commit.
-6. Lance le commit, puis confirme le hash et le message.
+5. Lance le commit, puis confirme le hash et le message.
 
 Argument optionnel (`$ARGUMENTS`) : si fourni, l'utiliser comme indication sur le scope, le type ou le ticket.
