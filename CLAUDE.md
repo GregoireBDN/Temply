@@ -43,7 +43,7 @@ cd apps/api && pnpm vitest run src/auth/auth.service.spec.ts
 
 Pre-commit hook runs `lint-staged`: ESLint + Prettier on `.ts`/`.tsx`, Prettier on JSON/MD/YAML.
 
-**Testing note**: Both apps use **Vitest**. The web app's `test` script runs `vitest run`. The API has a `vitest.config.ts` (Node environment, picks up `src/**/*.spec.ts`) — note its `package.json` `test` script still says `jest`, which is stale; run API tests with `vitest` directly as shown above.
+**Testing note**: Both apps use **Vitest**. The web app's `test` script runs `vitest run`. The API also has a `vitest.config.ts` (Node environment, picks up `src/**/*.spec.ts`) and its `test` script runs `vitest run` — use `pnpm --filter @temply/api test` (or the `pnpm vitest run <file>` form above for a single spec).
 
 ## Typed API client (codegen pipeline)
 
