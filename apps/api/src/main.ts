@@ -10,6 +10,7 @@ import fastifyCookie from '@fastify/cookie'
 import fastifyHelmet from '@fastify/helmet'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
+import { env } from './config/env'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -65,7 +66,7 @@ async function bootstrap() {
   )
 
   app.enableCors({
-    origin: process.env['APP_URL'] ?? 'http://localhost:3000',
+    origin: env.APP_URL,
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     // Expose rate-limit headers so the web client can warn the user before
@@ -89,7 +90,7 @@ async function bootstrap() {
     jsonDocumentUrl: 'api/docs-json',
   })
 
-  const port = process.env['PORT'] ?? 4000
+  const port = env.PORT
   await app.listen(port)
   console.warn(`API running on http://localhost:${port}/api`)
   console.warn(`Swagger UI: http://localhost:${port}/api/docs`)

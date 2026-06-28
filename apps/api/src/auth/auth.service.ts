@@ -16,11 +16,11 @@ import {
   passwordResetTokensTable,
 } from '#/auth/auth.schema'
 import { EmailService } from '#/email/email.service'
+import { env } from '#/config/env'
 import { usersTable } from '#/user/user.schema'
 import {
   AUTH_ERRORS,
   BCRYPT_SALT_ROUNDS,
-  DEFAULT_APP_URL,
   EMAIL_VERIFICATION_TTL_MS,
   PASSWORD_RESET_TTL_MS,
 } from './auth.constants'
@@ -59,19 +59,19 @@ export class AuthService implements OnModuleInit {
 
   private get google(): OAuthProvider {
     return new this.arctic.Google(
-      process.env['GOOGLE_CLIENT_ID']!,
-      process.env['GOOGLE_CLIENT_SECRET']!,
-      process.env['GOOGLE_REDIRECT_URI']!,
+      env.GOOGLE_CLIENT_ID,
+      env.GOOGLE_CLIENT_SECRET,
+      env.GOOGLE_REDIRECT_URI,
     )
   }
 
   private get apple(): OAuthProvider {
     return new this.arctic.Apple(
-      process.env['APPLE_CLIENT_ID']!,
-      process.env['APPLE_TEAM_ID']!,
-      process.env['APPLE_KEY_ID']!,
-      new TextEncoder().encode(process.env['APPLE_PRIVATE_KEY']!),
-      process.env['APPLE_REDIRECT_URI']!,
+      env.APPLE_CLIENT_ID,
+      env.APPLE_TEAM_ID,
+      env.APPLE_KEY_ID,
+      new TextEncoder().encode(env.APPLE_PRIVATE_KEY),
+      env.APPLE_REDIRECT_URI,
     )
   }
 
@@ -169,8 +169,7 @@ export class AuthService implements OnModuleInit {
       expiresAt,
     })
 
-    const appUrl = process.env['APP_URL'] ?? DEFAULT_APP_URL
-    const verifyUrl = `${appUrl}/verify-email?token=${token}`
+    const verifyUrl = `${env.APP_URL}/verify-email?token=${token}`
     await this.email.sendEmailVerification(email, verifyUrl)
   }
 
@@ -263,8 +262,7 @@ export class AuthService implements OnModuleInit {
       expiresAt,
     })
 
-    const appUrl = process.env['APP_URL'] ?? DEFAULT_APP_URL
-    const resetUrl = `${appUrl}/reset-password?token=${token}`
+    const resetUrl = `${env.APP_URL}/reset-password?token=${token}`
     await this.email.sendPasswordReset(user.email, resetUrl)
   }
 

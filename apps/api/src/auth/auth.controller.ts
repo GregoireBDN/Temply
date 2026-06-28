@@ -62,9 +62,8 @@ export class AuthController {
     }
 
     const token = await this.authService.handleGoogleCallback(code, codeVerifier)
-    const appUrl = process.env['APP_URL'] ?? 'http://localhost:3000'
 
-    this.sendRedirect(reply, `${appUrl}/auth/success`, [
+    this.sendRedirect(reply, `${env.APP_URL}/auth/success`, [
       this.clearCookie('oauth_state'),
       this.clearCookie('code_verifier'),
       this.cookie('token', token, TOKEN_TTL),
@@ -94,9 +93,8 @@ export class AuthController {
       appleUser?.name?.firstName,
       appleUser?.name?.lastName,
     )
-    const appUrl = process.env['APP_URL'] ?? 'http://localhost:3000'
 
-    this.sendRedirect(reply, `${appUrl}/auth/success`, [
+    this.sendRedirect(reply, `${env.APP_URL}/auth/success`, [
       this.clearCookie('oauth_state'),
       this.cookie('token', token, TOKEN_TTL),
     ])

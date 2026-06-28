@@ -2,7 +2,6 @@ export const BCRYPT_SALT_ROUNDS = 10
 export const JWT_EXPIRY_SECONDS = 60 * 60 * 24 * 7
 export const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000
 export const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000
-export const DEFAULT_APP_URL = 'http://localhost:3000'
 
 export const AUTH_ERRORS = {
   EMAIL_IN_USE: 'Email already in use',
