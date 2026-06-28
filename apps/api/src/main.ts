@@ -99,6 +99,10 @@ async function bootstrap() {
   })
   app.setGlobalPrefix('api')
 
+  // Run onModuleDestroy hooks (e.g. draining the Postgres pool) on SIGTERM/SIGINT
+  // so the process shuts down cleanly instead of dropping in-flight connections.
+  app.enableShutdownHooks()
+
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Temply API')
     .setVersion('1.0')

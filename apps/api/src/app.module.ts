@@ -2,14 +2,13 @@ import { Module } from '@nestjs/common'
 import { APP_FILTER, APP_GUARD } from '@nestjs/core'
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler'
 import { LoggerModule } from 'nestjs-pino'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { loggerParams } from './config/logger'
 import { THROTTLE_LIMITS, THROTTLE_TTL } from './throttle.config'
 import { AllExceptionsFilter } from '#/common/filters/all-exceptions.filter'
 import { AuthModule } from '#/auth/auth.module'
 import { DatabaseModule } from '#/database/database.module'
 import { EmailModule } from '#/email/email.module'
+import { HealthModule } from '#/health/health.module'
 import { UserModule } from '#/user/user.module'
 
 @Module({
@@ -27,10 +26,9 @@ import { UserModule } from '#/user/user.module'
     EmailModule,
     UserModule,
     AuthModule,
+    HealthModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     // Normalises every unhandled exception into a uniform error envelope.
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

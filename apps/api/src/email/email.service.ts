@@ -16,6 +16,14 @@ export class EmailService {
       : undefined,
   })
 
+  /**
+   * Verify the SMTP connection/credentials without sending mail. Used by the
+   * health check to surface a broken mail pipeline.
+   */
+  async verifyConnection(): Promise<void> {
+    await this.transporter.verify()
+  }
+
   async sendEmailVerification(to: string, verifyUrl: string): Promise<void> {
     const html = await render(VerifyEmail({ verifyUrl }))
     await this.transporter.sendMail({
