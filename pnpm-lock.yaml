@@ -29,6 +29,9 @@ importers:
       '@fastify/formbody':
         specifier: ^8.0.2
         version: 8.0.2
+      '@fastify/helmet':
+        specifier: ^13.0.2
+        version: 13.0.2
       '@fastify/static':
         specifier: ^9.1.3
         version: 9.1.3
@@ -255,7 +258,7 @@ importers:
         version: 0.545.0(react@19.2.6)
       nitro:
         specifier: npm:nitro-nightly@latest
-        version: nitro-nightly@3.0.1-20260626-071224-83acc441(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@0.45.2(postgres@3.4.9))(giget@3.2.0)(jiti@2.7.0)(lru-cache@11.3.6)(rollup@4.62.0)(vite@8.0.13(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
+        version: nitro-nightly@3.0.1-20260628-090458-3df69609(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@0.45.2(postgres@3.4.9))(giget@3.2.0)(jiti@2.7.0)(lru-cache@11.3.6)(rollup@4.62.0)(vite@8.0.13(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0))
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1307,6 +1310,9 @@ packages:
 
   '@fastify/forwarded@3.0.1':
     resolution: {integrity: sha512-JqDochHFqXs3C3Ml3gOY58zM7OqO9ENqPo0UqAjAjH8L01fRZqwX9iLeX34//kiJubF7r2ZQHtBRU36vONbLlw==}
+
+  '@fastify/helmet@13.0.2':
+    resolution: {integrity: sha512-tO1QMkOfNeCt9l4sG/FiWErH4QMm+RjHzbMTrgew1DYOQ2vb/6M1G2iNABBrD7Xq6dUk+HLzWW8u+rmmhQHifA==}
 
   '@fastify/merge-json-schemas@0.2.1':
     resolution: {integrity: sha512-OA3KGBCy6KtIvLf8DINC5880o5iBlDX4SxzLQS8HorJAbqluzLRn80UXU0bxZn7UOFhFgpRJDasfwn9nG4FG4A==}
@@ -5488,6 +5494,10 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
+  helmet@8.2.0:
+    resolution: {integrity: sha512-DRgTIUgnWcJ62KyarxxziuqYxKGnR6Rgg19BlbucN/dpmJbl1XOit6qvoOX0ZT+HhWe5OUVhU/a1zpGyc1xA0Q==}
+    engines: {node: '>=18.0.0'}
+
   hookable@6.1.1:
     resolution: {integrity: sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ==}
 
@@ -6063,8 +6073,8 @@ packages:
   nf3@0.3.17:
     resolution: {integrity: sha512-N9zEWySuJFw+gR0lhS5863YsvNeudOdqRyFvNb+jMXbeTJOdrjDqkCpDginIZfUm0LzT1t1nCRiDeqQm/8kirQ==}
 
-  nitro-nightly@3.0.1-20260626-071224-83acc441:
-    resolution: {integrity: sha512-L/fN7mcEXwfMECbH3sXmqwwTFRTK57giGjVet+hG0IldugIuA77fXBIteS6NYHvXp12Jw6ZO4pWr07WQrBNPRA==}
+  nitro-nightly@3.0.1-20260628-090458-3df69609:
+    resolution: {integrity: sha512-QQ660QC3lXsimlzMRzVWR62Lm1Vysfz/7Q7zVcCFz2xmiP0QHjoD0CMucEvX6HK4Y+v/sL3WrmB02YuLAg3fcw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -8245,6 +8255,11 @@ snapshots:
       fastify-plugin: 5.1.0
 
   '@fastify/forwarded@3.0.1': {}
+
+  '@fastify/helmet@13.0.2':
+    dependencies:
+      fastify-plugin: 5.1.0
+      helmet: 8.2.0
 
   '@fastify/merge-json-schemas@0.2.1':
     dependencies:
@@ -12532,6 +12547,8 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
+  helmet@8.2.0: {}
+
   hookable@6.1.1: {}
 
   html-encoding-sniffer@6.0.0:
@@ -13050,7 +13067,7 @@ snapshots:
 
   nf3@0.3.17: {}
 
-  nitro-nightly@3.0.1-20260626-071224-83acc441(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@0.45.2(postgres@3.4.9))(giget@3.2.0)(jiti@2.7.0)(lru-cache@11.3.6)(rollup@4.62.0)(vite@8.0.13(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0)):
+  nitro-nightly@3.0.1-20260628-090458-3df69609(chokidar@5.0.0)(dotenv@17.4.2)(drizzle-orm@0.45.2(postgres@3.4.9))(giget@3.2.0)(jiti@2.7.0)(lru-cache@11.3.6)(rollup@4.62.0)(vite@8.0.13(@types/node@22.19.19)(esbuild@0.28.0)(jiti@2.7.0)(terser@5.47.1)(tsx@4.22.0)(yaml@2.9.0)):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.6(srvx@0.11.16)

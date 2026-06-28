@@ -7,6 +7,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify'
 import fastifyCookie from '@fastify/cookie'
+import fastifyHelmet from '@fastify/helmet'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 
@@ -17,6 +18,43 @@ async function bootstrap() {
   )
 
   await app.register(fastifyCookie)
+
+  // Security headers (CSP, HSTS, X-Frame-Options, etc.). The default CSP is
+  // strict: the API only returns JSON, so no inline scripts/styles are needed.
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: [`'self'`],
+        baseUri: [`'self'`],
+        objectSrc: [`'none'`],
+        scriptSrc: [`'self'`],
+        styleSrc: [`'self'`],
+        imgSrc: [`'self'`, 'data:'],
+      },
+    },
+  })
+
+  // The Swagger UI (/api/docs) is the only HTML page and relies on inline
+  // scripts/styles, so it gets a relaxed CSP — scoped to that route only,
+  // instead of weakening the policy for the whole API.
+  const SWAGGER_CSP = [
+    `default-src 'self'`,
+    `base-uri 'self'`,
+    `object-src 'none'`,
+    `script-src 'self' 'unsafe-inline'`,
+    `style-src 'self' 'unsafe-inline'`,
+    `img-src 'self' data: validator.swagger.io`,
+  ].join('; ')
+
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onSend', (request, reply, payload, done) => {
+      if (request.url.startsWith('/api/docs')) {
+        reply.header('Content-Security-Policy', SWAGGER_CSP)
+      }
+      done(null, payload)
+    })
 
   app.useGlobalPipes(
     new ValidationPipe({
