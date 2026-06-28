@@ -9,14 +9,33 @@ import {
 import fastifyCookie from '@fastify/cookie'
 import fastifyHelmet from '@fastify/helmet'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { Logger } from 'nestjs-pino'
 import { AppModule } from './app.module'
 import { env } from './config/env'
+import { genReqId, REQUEST_ID_HEADER } from './config/logger'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    // Honour an inbound x-request-id (or mint one) as Fastify's req.id, which
+    // nestjs-pino surfaces as `reqId` on every log line for the request.
+    new FastifyAdapter({ genReqId }),
+    // Buffer bootstrap logs until the pino logger is wired in below, so even
+    // early framework logs go through the structured logger.
+    { bufferLogs: true },
   )
+
+  // Route every Nest log (including the framework's own) through pino.
+  app.useLogger(app.get(Logger))
+
+  // Echo the correlation id back so callers can quote it when reporting issues.
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onRequest', (request, reply, done) => {
+      reply.header(REQUEST_ID_HEADER, request.id)
+      done()
+    })
 
   await app.register(fastifyCookie)
 
@@ -92,8 +111,10 @@ async function bootstrap() {
 
   const port = env.PORT
   await app.listen(port)
-  console.warn(`API running on http://localhost:${port}/api`)
-  console.warn(`Swagger UI: http://localhost:${port}/api/docs`)
+
+  const logger = app.get(Logger)
+  logger.log(`API running on http://localhost:${port}/api`)
+  logger.log(`Swagger UI: http://localhost:${port}/api/docs`)
 }
 
 bootstrap()
