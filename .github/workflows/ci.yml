@@ -73,14 +73,17 @@ jobs:
       - name: Apply database migrations
         run: pnpm --filter @temply/api db:migrate
 
+      # Turbo reads the cache location from the TURBO_CACHE_DIR env var set above.
+      # Don't pass --cache-dir here: `pnpm <script> -- …` forwards the flag past
+      # turbo to the underlying tool (eslint/tsc/vitest), which rejects it.
       - name: Lint
-        run: pnpm lint -- --cache-dir=.turbo
+        run: pnpm lint
 
       - name: Check types
-        run: pnpm check-types -- --cache-dir=.turbo
+        run: pnpm check-types
 
       - name: Test
-        run: pnpm test -- --cache-dir=.turbo
+        run: pnpm test
 
       - name: Build
-        run: pnpm build -- --cache-dir=.turbo
+        run: pnpm build
