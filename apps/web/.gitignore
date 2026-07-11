@@ -12,3 +12,7 @@ dist-ssr
 __unconfig*
 todos.json
 src/api/
+
+# Playwright
+test-results/
+playwright-report/
