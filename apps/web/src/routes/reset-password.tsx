@@ -6,8 +6,19 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { authControllerResetPassword } from '#/api'
 import { ROUTES } from '#/lib/routes'
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Field, FieldError, FieldLabel, PasswordInput } from '@temply/ui'
-
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Field,
+  FieldError,
+  FieldLabel,
+  PasswordInput,
+} from '@temply/ui'
 
 export const Route = createFileRoute('/reset-password')({
   validateSearch: z.object({ token: z.string().optional() }),
@@ -64,7 +75,9 @@ function ResetPasswordPage() {
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Lien invalide</CardTitle>
-            <CardDescription>Ce lien de réinitialisation est invalide ou a expiré.</CardDescription>
+            <CardDescription>
+              Ce lien de réinitialisation est invalide ou a expiré.
+            </CardDescription>
           </CardHeader>
           <CardFooter className="justify-center">
             <Button asChild variant="secondary">
@@ -81,7 +94,9 @@ function ResetPasswordPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Nouveau mot de passe</CardTitle>
-          <CardDescription>Choisissez un nouveau mot de passe pour votre compte.</CardDescription>
+          <CardDescription>
+            Choisissez un nouveau mot de passe pour votre compte.
+          </CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -90,9 +105,15 @@ function ResetPasswordPage() {
               Mot de passe mis à jour. Redirection en cours…
             </p>
           ) : (
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3" noValidate>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-3"
+              noValidate
+            >
               <Field data-invalid={!!form.formState.errors.password}>
-                <FieldLabel htmlFor="new-password">Nouveau mot de passe</FieldLabel>
+                <FieldLabel htmlFor="new-password">
+                  Nouveau mot de passe
+                </FieldLabel>
                 <PasswordInput
                   id="new-password"
                   autoComplete="new-password"
@@ -100,12 +121,16 @@ function ResetPasswordPage() {
                   {...form.register('password')}
                 />
                 {form.formState.errors.password && (
-                  <FieldError>{form.formState.errors.password.message}</FieldError>
+                  <FieldError>
+                    {form.formState.errors.password.message}
+                  </FieldError>
                 )}
               </Field>
 
               <Field data-invalid={!!form.formState.errors.confirm}>
-                <FieldLabel htmlFor="confirm-password">Confirmer le mot de passe</FieldLabel>
+                <FieldLabel htmlFor="confirm-password">
+                  Confirmer le mot de passe
+                </FieldLabel>
                 <PasswordInput
                   id="confirm-password"
                   autoComplete="new-password"
@@ -113,11 +138,17 @@ function ResetPasswordPage() {
                   {...form.register('confirm')}
                 />
                 {form.formState.errors.confirm && (
-                  <FieldError>{form.formState.errors.confirm.message}</FieldError>
+                  <FieldError>
+                    {form.formState.errors.confirm.message}
+                  </FieldError>
                 )}
               </Field>
 
-              <Button type="submit" fullWidth loading={form.formState.isSubmitting}>
+              <Button
+                type="submit"
+                fullWidth
+                loading={form.formState.isSubmitting}
+              >
                 Réinitialiser le mot de passe
               </Button>
             </form>
@@ -133,7 +164,7 @@ function getErrorMessage(error: unknown): string {
     error &&
     typeof error === 'object' &&
     'message' in error &&
-    typeof (error as { message: unknown }).message === 'string'
+    typeof error.message === 'string'
   ) {
     return (error as { message: string }).message
   }

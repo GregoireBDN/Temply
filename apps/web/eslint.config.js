@@ -16,6 +16,15 @@ export default [
     },
   },
   {
-    ignores: ['eslint.config.js', 'prettier.config.js'],
+    ignores: [
+      'eslint.config.js',
+      'prettier.config.js',
+      // Build output and generated code — not authored by hand.
+      '.output/**',
+      '.nitro/**',
+      'dist/**',
+      'src/api/**',
+      'src/routeTree.gen.ts',
+    ],
   },
 ]

@@ -6,7 +6,20 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 import { authControllerLogin, authControllerRegister } from '#/api'
 import { ROUTES } from '#/lib/routes'
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Field, FieldError, FieldLabel, Input, Separator } from '@temply/ui'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Field,
+  FieldError,
+  FieldLabel,
+  Input,
+  Separator,
+} from '@temply/ui'
 import { FcGoogle } from 'react-icons/fc'
 
 export const Route = createFileRoute('/auth')({
@@ -54,7 +67,10 @@ function AuthPage() {
   }
 
   async function onSubmitRegister(values: RegisterValues) {
-    const res = await authControllerRegister({ body: values, throwOnError: false })
+    const res = await authControllerRegister({
+      body: values,
+      throwOnError: false,
+    })
     if (res.error) {
       const message = getErrorMessage(res.error)
       toast.error(message)
@@ -86,7 +102,10 @@ function AuthPage() {
         <CardContent className="space-y-4">
           {/* Google OAuth */}
           <Button asChild fullWidth variant="secondary" outline>
-            <a href={`${API_URL}/api/auth/google`} className="inline-flex items-center gap-2">
+            <a
+              href={`${API_URL}/api/auth/google`}
+              className="inline-flex items-center gap-2"
+            >
               <FcGoogle />
               Continuer avec Google
             </a>
@@ -106,9 +125,7 @@ function AuthPage() {
               className="space-y-3"
               noValidate
             >
-              <Field
-                data-invalid={!!loginForm.formState.errors.email}
-              >
+              <Field data-invalid={!!loginForm.formState.errors.email}>
                 <FieldLabel htmlFor="login-email">Email</FieldLabel>
                 <Input
                   id="login-email"
@@ -118,13 +135,13 @@ function AuthPage() {
                   {...loginForm.register('email')}
                 />
                 {loginForm.formState.errors.email && (
-                  <FieldError>{loginForm.formState.errors.email.message}</FieldError>
+                  <FieldError>
+                    {loginForm.formState.errors.email.message}
+                  </FieldError>
                 )}
               </Field>
 
-              <Field
-                data-invalid={!!loginForm.formState.errors.password}
-              >
+              <Field data-invalid={!!loginForm.formState.errors.password}>
                 <FieldLabel htmlFor="login-password">Mot de passe</FieldLabel>
                 <Input
                   id="login-password"
@@ -134,7 +151,9 @@ function AuthPage() {
                   {...loginForm.register('password')}
                 />
                 {loginForm.formState.errors.password && (
-                  <FieldError>{loginForm.formState.errors.password.message}</FieldError>
+                  <FieldError>
+                    {loginForm.formState.errors.password.message}
+                  </FieldError>
                 )}
               </Field>
 
@@ -152,9 +171,7 @@ function AuthPage() {
               className="space-y-3"
               noValidate
             >
-              <Field
-                data-invalid={!!registerForm.formState.errors.name}
-              >
+              <Field data-invalid={!!registerForm.formState.errors.name}>
                 <FieldLabel htmlFor="register-name">Nom</FieldLabel>
                 <Input
                   id="register-name"
@@ -164,13 +181,13 @@ function AuthPage() {
                   {...registerForm.register('name')}
                 />
                 {registerForm.formState.errors.name && (
-                  <FieldError>{registerForm.formState.errors.name.message}</FieldError>
+                  <FieldError>
+                    {registerForm.formState.errors.name.message}
+                  </FieldError>
                 )}
               </Field>
 
-              <Field
-                data-invalid={!!registerForm.formState.errors.email}
-              >
+              <Field data-invalid={!!registerForm.formState.errors.email}>
                 <FieldLabel htmlFor="register-email">Email</FieldLabel>
                 <Input
                   id="register-email"
@@ -180,14 +197,16 @@ function AuthPage() {
                   {...registerForm.register('email')}
                 />
                 {registerForm.formState.errors.email && (
-                  <FieldError>{registerForm.formState.errors.email.message}</FieldError>
+                  <FieldError>
+                    {registerForm.formState.errors.email.message}
+                  </FieldError>
                 )}
               </Field>
 
-              <Field
-                data-invalid={!!registerForm.formState.errors.password}
-              >
-                <FieldLabel htmlFor="register-password">Mot de passe</FieldLabel>
+              <Field data-invalid={!!registerForm.formState.errors.password}>
+                <FieldLabel htmlFor="register-password">
+                  Mot de passe
+                </FieldLabel>
                 <Input
                   id="register-password"
                   type="password"
@@ -196,7 +215,9 @@ function AuthPage() {
                   {...registerForm.register('password')}
                 />
                 {registerForm.formState.errors.password && (
-                  <FieldError>{registerForm.formState.errors.password.message}</FieldError>
+                  <FieldError>
+                    {registerForm.formState.errors.password.message}
+                  </FieldError>
                 )}
               </Field>
 
@@ -246,7 +267,7 @@ function getErrorMessage(error: unknown): string {
     error &&
     typeof error === 'object' &&
     'message' in error &&
-    typeof (error as { message: unknown }).message === 'string'
+    typeof error.message === 'string'
   ) {
     return (error as { message: string }).message
   }

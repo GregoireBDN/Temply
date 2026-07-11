@@ -1,4 +1,5 @@
-import { expect, type APIRequestContext } from '@playwright/test'
+import { expect } from '@playwright/test'
+import type { APIRequestContext } from '@playwright/test'
 
 const MAILPIT_URL = process.env['MAILPIT_URL'] ?? 'http://localhost:8025'
 
@@ -16,7 +17,9 @@ interface MailpitMessage {
 function decodeQuotedPrintable(input: string): string {
   return input
     .replace(/=\r?\n/g, '')
-    .replace(/=([0-9A-Fa-f]{2})/g, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/=([0-9A-Fa-f]{2})/g, (_, hex: string) =>
+      String.fromCharCode(parseInt(hex, 16)),
+    )
 }
 
 function addressOf(message: MailpitMessage): string[] {
@@ -37,7 +40,9 @@ export async function waitForEmailLink(
   for (let attempt = 0; attempt < 20; attempt++) {
     const res = await request.get(`${MAILPIT_URL}/api/v1/messages`)
     if (res.ok()) {
-      const payload = (await res.json()) as MailpitMessage[] | { messages: MailpitMessage[] }
+      const payload = (await res.json()) as
+        | MailpitMessage[]
+        | { messages: MailpitMessage[] }
       const messages = Array.isArray(payload) ? payload : payload.messages
       for (const message of messages) {
         if (!addressOf(message).includes(recipient)) continue
@@ -48,7 +53,9 @@ export async function waitForEmailLink(
     await new Promise((resolve) => setTimeout(resolve, 500))
   }
 
-  throw new Error(`No email to ${recipient} containing a "${path}" link arrived in time`)
+  throw new Error(
+    `No email to ${recipient} containing a "${path}" link arrived in time`,
+  )
 }
 
 /** Removes all stored messages so a test starts from a clean inbox. */

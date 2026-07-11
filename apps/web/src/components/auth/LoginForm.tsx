@@ -4,11 +4,26 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { X } from 'lucide-react'
 import { authControllerLogin } from '#/api'
-import { isRateLimited, rateLimitMessage, rateLimitWarning } from '#/lib/api-errors'
+import {
+  isRateLimited,
+  rateLimitMessage,
+  rateLimitWarning,
+} from '#/lib/api-errors'
 import { useAuth } from '#/lib/auth-context'
 import { ROUTES } from '#/lib/routes'
-import { Alert, AlertAction, AlertDescription, Button, Field, FieldError, FieldLabel, Input, PasswordInput } from '@temply/ui'
-import { loginSchema, type LoginValues } from './auth.schemas'
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  Button,
+  Field,
+  FieldError,
+  FieldLabel,
+  Input,
+  PasswordInput,
+} from '@temply/ui'
+import { loginSchema } from './auth.schemas'
+import type { LoginValues } from './auth.schemas'
 
 interface LoginFormProps {
   onSwitchToForgot: () => void
@@ -45,7 +60,11 @@ export function LoginForm({ onSwitchToForgot }: LoginFormProps) {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3" noValidate>
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-3"
+      noValidate
+    >
       <Field data-invalid={!!form.formState.errors.email}>
         <FieldLabel htmlFor="login-email">Email</FieldLabel>
         <Input
@@ -74,7 +93,13 @@ export function LoginForm({ onSwitchToForgot }: LoginFormProps) {
       </Field>
 
       <div className="text-right">
-        <Button type="button" variant="secondary" link size="xs" onClick={onSwitchToForgot}>
+        <Button
+          type="button"
+          variant="secondary"
+          link
+          size="xs"
+          onClick={onSwitchToForgot}
+        >
           Mot de passe oublié ?
         </Button>
       </div>

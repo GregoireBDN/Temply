@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { LoginForm } from './LoginForm'
+
 // Hoisted mocks: referenced inside vi.mock factories (which run before imports).
 const { authControllerLogin, navigate, refresh } = vi.hoisted(() => ({
   authControllerLogin: vi.fn(),
@@ -12,8 +14,6 @@ const { authControllerLogin, navigate, refresh } = vi.hoisted(() => ({
 vi.mock('#/api', () => ({ authControllerLogin }))
 vi.mock('@tanstack/react-router', () => ({ useNavigate: () => navigate }))
 vi.mock('#/lib/auth-context', () => ({ useAuth: () => ({ refresh }) }))
-
-import { LoginForm } from './LoginForm'
 
 function setup() {
   const onSwitchToForgot = vi.fn()
@@ -69,7 +69,9 @@ describe('LoginForm', () => {
     await user.type(screen.getByLabelText('Mot de passe'), 'wrongpassword')
     await user.click(screen.getByRole('button', { name: 'Se connecter' }))
 
-    expect(await screen.findByText('Email ou mot de passe incorrect')).toBeInTheDocument()
+    expect(
+      await screen.findByText('Email ou mot de passe incorrect'),
+    ).toBeInTheDocument()
     expect(refresh).not.toHaveBeenCalled()
     expect(navigate).not.toHaveBeenCalled()
   })
@@ -77,7 +79,9 @@ describe('LoginForm', () => {
   it('triggers the forgot-password switch', async () => {
     const { user, onSwitchToForgot } = setup()
 
-    await user.click(screen.getByRole('button', { name: 'Mot de passe oublié ?' }))
+    await user.click(
+      screen.getByRole('button', { name: 'Mot de passe oublié ?' }),
+    )
 
     expect(onSwitchToForgot).toHaveBeenCalled()
   })

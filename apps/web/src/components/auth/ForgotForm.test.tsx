@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { ForgotForm } from './ForgotForm'
+
 const { authControllerForgotPassword, toastError } = vi.hoisted(() => ({
   authControllerForgotPassword: vi.fn(),
   toastError: vi.fn(),
@@ -9,8 +11,6 @@ const { authControllerForgotPassword, toastError } = vi.hoisted(() => ({
 
 vi.mock('#/api', () => ({ authControllerForgotPassword }))
 vi.mock('sonner', () => ({ toast: { error: toastError } }))
-
-import { ForgotForm } from './ForgotForm'
 
 describe('ForgotForm', () => {
   beforeEach(() => {
@@ -52,7 +52,10 @@ describe('ForgotForm', () => {
 
   it('toasts and stays on the form when rate-limited', async () => {
     authControllerForgotPassword.mockResolvedValue({
-      response: new Response(null, { status: 429, headers: { 'retry-after': '30' } }),
+      response: new Response(null, {
+        status: 429,
+        headers: { 'retry-after': '30' },
+      }),
     })
     const user = userEvent.setup()
     render(<ForgotForm />)
@@ -62,6 +65,8 @@ describe('ForgotForm', () => {
 
     await waitFor(() => expect(toastError).toHaveBeenCalled())
     // Still on the form, confirmation not shown.
-    expect(screen.getByRole('button', { name: 'Envoyer le lien' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Envoyer le lien' }),
+    ).toBeInTheDocument()
   })
 })

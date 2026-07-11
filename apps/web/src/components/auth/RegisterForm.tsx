@@ -4,10 +4,18 @@ import { useAuth } from '#/lib/auth-context'
 import { ROUTES } from '#/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
-import { Button, Field, FieldError, FieldLabel, Input, PasswordInput } from '@temply/ui'
+import {
+  Button,
+  Field,
+  FieldError,
+  FieldLabel,
+  Input,
+  PasswordInput,
+} from '@temply/ui'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { registerSchema, type RegisterValues } from './auth.schemas'
+import { registerSchema } from './auth.schemas'
+import type { RegisterValues } from './auth.schemas'
 
 export function RegisterForm() {
   const navigate = useNavigate()
@@ -20,7 +28,11 @@ export function RegisterForm() {
 
   async function onSubmit(values: RegisterValues) {
     const res = await authControllerRegister({
-      body: { email: values.email, name: values.name, password: values.password },
+      body: {
+        email: values.email,
+        name: values.name,
+        password: values.password,
+      },
       throwOnError: false,
     })
     if (res.error) {
@@ -36,7 +48,11 @@ export function RegisterForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3" noValidate>
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-3"
+      noValidate
+    >
       <Field data-invalid={!!form.formState.errors.name}>
         <FieldLabel htmlFor="register-name">Nom</FieldLabel>
         <Input
@@ -79,7 +95,9 @@ export function RegisterForm() {
       </Field>
 
       <Field data-invalid={!!form.formState.errors.confirmPassword}>
-        <FieldLabel htmlFor="register-confirm-password">Confirmer le mot de passe</FieldLabel>
+        <FieldLabel htmlFor="register-confirm-password">
+          Confirmer le mot de passe
+        </FieldLabel>
         <PasswordInput
           id="register-confirm-password"
           autoComplete="new-password"
@@ -87,7 +105,9 @@ export function RegisterForm() {
           {...form.register('confirmPassword')}
         />
         {form.formState.errors.confirmPassword && (
-          <FieldError>{form.formState.errors.confirmPassword.message}</FieldError>
+          <FieldError>
+            {form.formState.errors.confirmPassword.message}
+          </FieldError>
         )}
       </Field>
 
@@ -103,7 +123,7 @@ function getErrorMessage(error: unknown): string {
     error &&
     typeof error === 'object' &&
     'message' in error &&
-    typeof (error as { message: unknown }).message === 'string'
+    typeof error.message === 'string'
   ) {
     return (error as { message: string }).message
   }

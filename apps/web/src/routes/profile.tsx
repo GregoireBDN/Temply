@@ -2,7 +2,8 @@ import { userControllerRemove, userControllerUpdate } from '#/api'
 import { getMe } from '#/lib/auth'
 import { useAuth } from '#/lib/auth-context'
 import { ROUTES } from '#/lib/routes'
-import { type ThemeMode as Theme, useTheme } from '#/lib/use-theme'
+import { useTheme } from '#/lib/use-theme'
+import type { ThemeMode as Theme } from '#/lib/use-theme'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import {
@@ -23,7 +24,6 @@ import {
   ArrowLeftIcon,
   BadgeCheckIcon,
   CalendarDaysIcon,
-  type LucideIcon,
   MailIcon,
   MonitorIcon,
   MoonIcon,
@@ -32,6 +32,7 @@ import {
   TriangleAlertIcon,
   UserIcon,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -56,8 +57,15 @@ const themes: Theme[] = ['light', 'dark', 'auto']
 const themeOptions = {
   light: { label: 'Clair', description: 'Toujours clair', icon: SunIcon },
   dark: { label: 'Sombre', description: 'Toujours sombre', icon: MoonIcon },
-  auto: { label: 'Système', description: 'Selon l’appareil', icon: MonitorIcon },
-} satisfies Record<Theme, { label: string; description: string; icon: LucideIcon }>
+  auto: {
+    label: 'Système',
+    description: 'Selon l’appareil',
+    icon: MonitorIcon,
+  },
+} satisfies Record<
+  Theme,
+  { label: string; description: string; icon: LucideIcon }
+>
 
 function ProfilePage() {
   const loaderUser = Route.useLoaderData()
@@ -131,11 +139,14 @@ function ProfilePage() {
     .slice(0, 2)
 
   const isVerified = !!currentUser.emailVerifiedAt
-  const memberSince = new Date(currentUser.createdAt).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  const memberSince = new Date(currentUser.createdAt).toLocaleDateString(
+    'fr-FR',
+    {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    },
+  )
 
   return (
     <main className="page-wrap px-4 py-10 sm:py-14">
@@ -160,7 +171,9 @@ function ProfilePage() {
               {initials}
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="truncate text-2xl font-bold tracking-tight">{currentUser.name}</h1>
+              <h1 className="truncate text-2xl font-bold tracking-tight">
+                {currentUser.name}
+              </h1>
               <p className="text-muted-foreground flex items-center gap-1.5 text-sm">
                 <MailIcon className="size-3.5 shrink-0" />
                 <span className="truncate">{currentUser.email}</span>
@@ -193,10 +206,16 @@ function ProfilePage() {
               <UserIcon className="size-4 text-muted-foreground" />
               Informations personnelles
             </CardTitle>
-            <CardDescription>Mettez à jour le nom associé à votre compte.</CardDescription>
+            <CardDescription>
+              Mettez à jour le nom associé à votre compte.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={form.handleSubmit(onSubmitName)} className="space-y-5" noValidate>
+            <form
+              onSubmit={form.handleSubmit(onSubmitName)}
+              className="space-y-5"
+              noValidate
+            >
               <Field data-invalid={!!form.formState.errors.name}>
                 <FieldLabel htmlFor="name">Nom complet</FieldLabel>
                 <Input
@@ -213,14 +232,24 @@ function ProfilePage() {
 
               <Field>
                 <FieldLabel htmlFor="email">Adresse email</FieldLabel>
-                <Input id="email" type="email" value={currentUser.email} readOnly disabled />
+                <Input
+                  id="email"
+                  type="email"
+                  value={currentUser.email}
+                  readOnly
+                  disabled
+                />
                 <p className="text-muted-foreground text-xs">
                   L’adresse email ne peut pas être modifiée pour le moment.
                 </p>
               </Field>
 
               <div className="flex justify-end">
-                <Button type="submit" loading={form.formState.isSubmitting} disabled={!isDirty}>
+                <Button
+                  type="submit"
+                  loading={form.formState.isSubmitting}
+                  disabled={!isDirty}
+                >
                   Enregistrer les modifications
                 </Button>
               </div>
@@ -236,7 +265,8 @@ function ProfilePage() {
               Apparence
             </CardTitle>
             <CardDescription>
-              Choisissez le thème de l’interface. Sauvegardé et appliqué sur tous vos appareils.
+              Choisissez le thème de l’interface. Sauvegardé et appliqué sur
+              tous vos appareils.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -276,8 +306,8 @@ function ProfilePage() {
               Zone dangereuse
             </CardTitle>
             <CardDescription>
-              La suppression de votre compte est définitive. Toutes vos données seront effacées et
-              ne pourront pas être récupérées.
+              La suppression de votre compte est définitive. Toutes vos données
+              seront effacées et ne pourront pas être récupérées.
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Local Turborepo cache directory (restored/saved via actions/cache below).
+  TURBO_CACHE_DIR: .turbo
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  ci:
+    name: lint · types · test · build
+    runs-on: ubuntu-latest
+
+    # Postgres for integration/DB-backed tests. Uses the same credentials and
+    # database name as docker-compose.yml / apps/api/.env.example so specs and
+    # migrations run against a familiar connection string.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: temply
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U user -d temply"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://user:password@localhost:5432/temply
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Restore the Turbo cache so unchanged tasks are replayed instead of rerun.
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-
+
+      # drizzle.config.ts calls process.loadEnvFile(), which throws if apps/api/.env
+      # is missing. Write a minimal file pointing at the Postgres service container.
+      - name: Write API .env for migrations
+        run: echo "DATABASE_URL=${DATABASE_URL}" > apps/api/.env
+
+      - name: Apply database migrations
+        run: pnpm --filter @temply/api db:migrate
+
+      - name: Lint
+        run: pnpm lint -- --cache-dir=.turbo
+
+      - name: Check types
+        run: pnpm check-types -- --cache-dir=.turbo
+
+      - name: Test
+        run: pnpm test -- --cache-dir=.turbo
+
+      - name: Build
+        run: pnpm build -- --cache-dir=.turbo
