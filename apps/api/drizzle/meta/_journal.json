@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1779000992370,
+      "tag": "0000_military_kree",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779800995521,
+      "tag": "0001_mighty_daimon_hellstrom",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779802008848,
+      "tag": "0002_omniscient_nextwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779807564172,
+      "tag": "0003_flimsy_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782000000000,
+      "tag": "0004_rename_token_to_token_hash",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783760134316,
+      "tag": "0005_cold_quasar",
+      "breakpoints": true
+    }
+  ]
+}
