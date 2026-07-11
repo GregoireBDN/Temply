@@ -30,11 +30,16 @@ describe('AllExceptionsFilter', () => {
     warn: ReturnType<typeof vi.fn>
     setContext: ReturnType<typeof vi.fn>
   }
+  let analytics: { captureException: ReturnType<typeof vi.fn> }
   let filter: AllExceptionsFilter
 
   beforeEach(() => {
     logger = { error: vi.fn(), warn: vi.fn(), setContext: vi.fn() }
-    filter = new AllExceptionsFilter(logger as unknown as PinoLogger)
+    analytics = { captureException: vi.fn() }
+    filter = new AllExceptionsFilter(
+      logger as unknown as PinoLogger,
+      analytics as never,
+    )
   })
 
   function captureBody(reply: { send: ReturnType<typeof vi.fn> }): ErrorResponse {
@@ -96,6 +101,19 @@ describe('AllExceptionsFilter', () => {
     // The original error is logged (with stack) but never sent to the client.
     expect(logger.error).toHaveBeenCalledOnce()
     expect(JSON.stringify(body)).not.toContain('leaked secret')
+    // 5xx faults are forwarded to error tracking, keyed by the request id.
+    expect(analytics.captureException).toHaveBeenCalledWith(boom, 'req-123', {
+      requestId: 'req-123',
+      path: '/api/widgets',
+    })
+  })
+
+  it('does not report expected 4xx client errors to error tracking', () => {
+    const { host } = createHost()
+
+    filter.catch(new NotFoundException('nope'), host)
+
+    expect(analytics.captureException).not.toHaveBeenCalled()
   })
 
   it('echoes the correlation id from the request', () => {

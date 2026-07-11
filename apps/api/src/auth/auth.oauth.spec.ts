@@ -55,6 +55,7 @@ describe('AuthService OAuth', () => {
       { db: mockDb } as never,
       mockJwt as unknown as JwtService,
       {} as never,
+      { capture: vi.fn(), captureException: vi.fn() } as never,
     )
     // Inject the fake arctic module that onModuleInit would normally import.
     ;(service as unknown as { arctic: typeof fakeArctic }).arctic = fakeArctic

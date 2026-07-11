@@ -51,6 +51,7 @@ function createService() {
     { db: mockDb } as never,
     mockJwt as unknown as JwtService,
     mockEmail as never,
+    { capture: vi.fn(), captureException: vi.fn() } as never,
   )
 }
 

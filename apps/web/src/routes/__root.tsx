@@ -4,6 +4,7 @@ import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { Toaster } from '@temply/ui'
 import Header from '../components/Header'
 import NotFound from '../components/NotFound'
+import { AnalyticsProvider } from '../lib/analytics'
 import { AuthProvider } from '../lib/auth-context'
 
 import appCss from '../globals.css?url'
@@ -48,23 +49,25 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="flex min-h-svh flex-col font-sans antialiased [overflow-wrap:anywhere]">
-        <AuthProvider>
-          <Header />
-          {children}
-          <Toaster />
-          <TanStackDevtools
-            config={{
-              position: 'bottom-right',
-            }}
-            plugins={[
-              {
-                name: 'Tanstack Router',
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
-          <Scripts />
-        </AuthProvider>
+        <AnalyticsProvider>
+          <AuthProvider>
+            <Header />
+            {children}
+            <Toaster />
+            <TanStackDevtools
+              config={{
+                position: 'bottom-right',
+              }}
+              plugins={[
+                {
+                  name: 'Tanstack Router',
+                  render: <TanStackRouterDevtoolsPanel />,
+                },
+              ]}
+            />
+            <Scripts />
+          </AuthProvider>
+        </AnalyticsProvider>
       </body>
     </html>
   )

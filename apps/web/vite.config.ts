@@ -16,9 +16,14 @@ const config = defineConfig({
       { find: /^#\//, replacement: path.resolve(import.meta.dirname, 'src') + '/' },
     ],
   },
+  // Bundle PostHog into the SSR build rather than externalising it, so the
+  // provider resolves correctly during server rendering.
+  ssr: {
+    noExternal: ['@posthog/react', 'posthog-js'],
+  },
   plugins: [
     devtools(),
-    nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+    nitro(),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

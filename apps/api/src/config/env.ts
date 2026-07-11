@@ -76,6 +76,14 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   EMAIL_FROM: z.string().default('noreply@temply.app'),
+
+  /**
+   * PostHog server-side analytics/error-tracking. Optional: an empty key
+   * disables capture entirely (the AnalyticsService becomes a no-op), so the
+   * app runs locally without a PostHog project configured.
+   */
+  POSTHOG_KEY: z.string().default(''),
+  POSTHOG_HOST: z.url().default('https://us.i.posthog.com'),
 })
 
 function loadEnv() {

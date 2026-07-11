@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcryptjs'
 import * as crypto from 'node:crypto'
 import { and, eq, isNull } from 'drizzle-orm'
+import { AnalyticsService } from '#/analytics/analytics.service'
 import { DatabaseService } from '#/database/database.service'
 import {
   emailVerificationTokensTable,
@@ -60,6 +61,7 @@ export class AuthService implements OnModuleInit {
     private readonly db: DatabaseService,
     private readonly jwt: JwtService,
     private readonly email: EmailService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   async onModuleInit() {
@@ -137,7 +139,12 @@ export class AuthService implements OnModuleInit {
         ),
       )
 
-    if (existing) return this.createSession(existing.userId)
+    if (existing) {
+      this.analytics.capture(existing.userId, 'user_logged_in', {
+        method: provider,
+      })
+      return this.createSession(existing.userId)
+    }
 
     const [user] = await this.db.db
       .insert(usersTable)
@@ -147,6 +154,7 @@ export class AuthService implements OnModuleInit {
       .insert(oauthAccountsTable)
       .values({ userId: user.id, provider, providerId })
 
+    this.analytics.capture(user.id, 'user_signed_up', { method: provider })
     return this.createSession(user.id)
   }
 
@@ -164,6 +172,7 @@ export class AuthService implements OnModuleInit {
       .returning()
 
     await this.sendVerificationEmail(user.id, user.email)
+    this.analytics.capture(user.id, 'user_signed_up', { method: 'password' })
     return this.createSession(user.id)
   }
 
@@ -234,6 +243,7 @@ export class AuthService implements OnModuleInit {
     const valid = await bcrypt.compare(dto.password, user.passwordHash)
     if (!valid) throw new UnauthorizedException('Invalid credentials')
 
+    this.analytics.capture(user.id, 'user_logged_in', { method: 'password' })
     return this.createSession(user.id)
   }
 

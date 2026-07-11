@@ -57,7 +57,7 @@ The web app talks to the API through a **generated, type-safe client** — do no
 
 ## API Architecture (NestJS)
 
-Standard NestJS module structure: each domain has a `*.module.ts`, `*.controller.ts`, `*.service.ts`, and `*.schema.ts`. Current modules: `Auth`, `User`, `Email`, `Database`.
+Standard NestJS module structure: each domain has a `*.module.ts`, `*.controller.ts`, `*.service.ts`, and `*.schema.ts`. Current modules: `Auth`, `User`, `Email`, `Database`, `Analytics`, `Health`.
 
 **Database**: `DatabaseService` exposes `db` (a Drizzle `PostgresJsDatabase`). All tables extend `coreColumns` from `apps/api/src/database/schema/core.schema.ts` which adds `id` (UUID PK), `createdAt`, `updatedAt`. Import schemas via `apps/api/src/database/schema/index.ts`.
 
@@ -65,6 +65,8 @@ Standard NestJS module structure: each domain has a `*.module.ts`, `*.controller
 
 - **Password auth**: `register` / `login` / `logout` (passwords hashed with `bcryptjs`), plus `forgot-password` / `reset-password` and email verification (`verify-email`, `resend-verification`). Verification and reset tokens are handled in `apps/api/src/email/tokens.ts`.
 - **OAuth** (Google PKCE, Apple) via the `arctic` library (loaded dynamically on module init). OAuth state is stored in short-lived httpOnly cookies (`oauth_state`, `code_verifier`) during the flow; callbacks redirect to `${APP_URL}/auth/success` with the `token` cookie set.
+
+**Analytics & error tracking**: `AnalyticsModule` is `@Global` and exposes `AnalyticsService`, a thin wrapper over the PostHog Node client (`posthog-node`). Inject it to `capture(distinctId, event, props)` product events or `captureException(...)`. It is a **no-op when `POSTHOG_KEY` is unset** (dev default), so call it unconditionally. `AllExceptionsFilter` forwards every unhandled 5xx to `captureException`; auth flows emit `user_signed_up` / `user_logged_in`. The client flushes on shutdown via `onModuleDestroy` (relies on `app.enableShutdownHooks()`). The web side uses `@posthog/react` (`apps/web/src/lib/analytics.tsx`) for client-side autocapture, pageviews, and browser error tracking, identifying/resetting the user in `auth-context.tsx`; it is likewise disabled when `VITE_POSTHOG_KEY` is unset. Note: this covers error tracking + product events, **not** infra metrics — a Prometheus `/metrics` endpoint is not yet implemented.
 
 **Email**: `EmailModule` renders React Email templates (`apps/api/src/email/templates/*.tsx`) to HTML via `react-email` and sends them with `nodemailer` over SMTP. In dev, SMTP points at **Mailpit** (`localhost:1025`, web UI at `localhost:8025`) started by `docker compose`.
 
