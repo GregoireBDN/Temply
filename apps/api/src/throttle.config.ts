@@ -15,4 +15,6 @@ export const THROTTLE_LIMITS = {
   register: 5,
   forgotPassword: 3,
   resendVerification: 3,
+  /** Token renewal — generous enough for legitimate access-token expiry. */
+  refresh: 30,
 } as const

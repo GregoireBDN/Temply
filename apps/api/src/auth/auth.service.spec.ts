@@ -51,17 +51,18 @@ describe('AuthService', () => {
       ).rejects.toThrow(ConflictException)
     })
 
-    it('returns a JWT token on success', async () => {
+    it('returns an access + refresh token pair on success', async () => {
       mockDb.select.mockReturnValue(buildChain([]))
       mockDb.insert.mockReturnValue(buildChain([{ id: 'new-id' }]))
 
-      const token = await service.register({
+      const tokens = await service.register({
         email: 'new@test.com',
         name: 'New User',
         password: 'password123',
       })
 
-      expect(token).toBe('mock-token')
+      expect(tokens.accessToken).toBe('mock-token')
+      expect(tokens.refreshToken).toMatch(/^[a-f0-9]{64}$/) // 32 random bytes, hex
       expect(mockJwt.sign).toHaveBeenCalledWith({ sub: 'new-id' }, expect.any(Object))
     })
   })

@@ -90,13 +90,15 @@ describe('AuthService OAuth', () => {
     it('exchanges the code with the PKCE verifier and issues a token for an existing account', async () => {
       decodeIdToken.mockReturnValue({ sub: 'g-1', email: 'g@test.com', name: 'Gina' })
       mockDb.select.mockReturnValue(buildChain([{ userId: 'user-1' }]))
+      mockDb.insert.mockReturnValue(buildChain([{}])) // session refresh token
 
-      const token = await service.handleGoogleCallback('auth-code', 'verifier-xyz')
+      const tokens = await service.handleGoogleCallback('auth-code', 'verifier-xyz')
 
       expect(validateAuthorizationCode).toHaveBeenCalledWith('auth-code', 'verifier-xyz')
-      expect(mockDb.insert).not.toHaveBeenCalled()
+      // No user/oauth-account row is created — only the session refresh token.
+      expect(mockDb.insert).toHaveBeenCalledTimes(1)
       expect(mockJwt.sign).toHaveBeenCalledWith({ sub: 'user-1' }, expect.any(Object))
-      expect(token).toBe('mock-token')
+      expect(tokens.accessToken).toBe('mock-token')
     })
 
     it('creates a user + oauth account on first login', async () => {
@@ -105,12 +107,13 @@ describe('AuthService OAuth', () => {
       mockDb.insert
         .mockReturnValueOnce(buildChain([{ id: 'user-2' }])) // insert user
         .mockReturnValueOnce(buildChain([{}])) // insert oauth account
+        .mockReturnValueOnce(buildChain([{}])) // insert session refresh token
 
-      const token = await service.handleGoogleCallback('auth-code', 'verifier-xyz')
+      const tokens = await service.handleGoogleCallback('auth-code', 'verifier-xyz')
 
-      expect(mockDb.insert).toHaveBeenCalledTimes(2)
+      expect(mockDb.insert).toHaveBeenCalledTimes(3)
       expect(mockJwt.sign).toHaveBeenCalledWith({ sub: 'user-2' }, expect.any(Object))
-      expect(token).toBe('mock-token')
+      expect(tokens.accessToken).toBe('mock-token')
     })
   })
 
@@ -121,6 +124,7 @@ describe('AuthService OAuth', () => {
       mockDb.insert
         .mockReturnValueOnce(buildChain([{ id: 'user-a' }]))
         .mockReturnValueOnce(buildChain([{}]))
+        .mockReturnValueOnce(buildChain([{}])) // session refresh token
 
       await service.handleAppleCallback('apple-code', 'Ada', 'Lovelace')
 
@@ -135,6 +139,7 @@ describe('AuthService OAuth', () => {
       mockDb.insert
         .mockReturnValueOnce(buildChain([{ id: 'user-a2' }]))
         .mockReturnValueOnce(buildChain([{}]))
+        .mockReturnValueOnce(buildChain([{}])) // session refresh token
 
       await service.handleAppleCallback('apple-code')
 

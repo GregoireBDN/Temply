@@ -22,6 +22,11 @@ import {
   VerifyEmailDto,
 } from '#/auth/dto/auth.dto'
 import { JwtGuard } from '#/auth/guards/jwt.guard'
+import {
+  ACCESS_TOKEN_TTL_SECONDS,
+  REFRESH_TOKEN_TTL_SECONDS,
+} from '#/auth/auth.constants'
+import type { SessionTokens } from '#/auth/auth.service'
 import { env } from '#/config/env'
 import { UserDto } from '#/user/user.dto'
 
@@ -33,7 +38,15 @@ const COOKIE_DEFAULTS = {
 } as const
 const COOKIE_SECURE = env.isProduction ? '; Secure' : ''
 const OAUTH_STATE_TTL = 60 * 5
-const TOKEN_TTL = 60 * 60 * 24 * 7
+
+/** Access token cookie — sent on every API request for the JwtGuard. */
+const ACCESS_COOKIE = 'token'
+/**
+ * Refresh token cookie — scoped to /api/auth so it only travels to the refresh
+ * and logout endpoints, never to ordinary API routes.
+ */
+const REFRESH_COOKIE = 'refresh_token'
+const REFRESH_COOKIE_PATH = '/api/auth'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -61,12 +74,12 @@ export class AuthController {
       throw new UnauthorizedException('Invalid OAuth state')
     }
 
-    const token = await this.authService.handleGoogleCallback(code, codeVerifier)
+    const tokens = await this.authService.handleGoogleCallback(code, codeVerifier)
 
     this.sendRedirect(reply, `${env.APP_URL}/auth/success`, [
       this.clearCookie('oauth_state'),
       this.clearCookie('code_verifier'),
-      this.cookie('token', token, TOKEN_TTL),
+      ...this.sessionCookieStrings(tokens),
     ])
   }
 
@@ -88,7 +101,7 @@ export class AuthController {
     }
 
     const appleUser = body.user ? (JSON.parse(body.user) as { name?: { firstName?: string; lastName?: string } }) : null
-    const token = await this.authService.handleAppleCallback(
+    const tokens = await this.authService.handleAppleCallback(
       body.code,
       appleUser?.name?.firstName,
       appleUser?.name?.lastName,
@@ -96,16 +109,35 @@ export class AuthController {
 
     this.sendRedirect(reply, `${env.APP_URL}/auth/success`, [
       this.clearCookie('oauth_state'),
-      this.cookie('token', token, TOKEN_TTL),
+      ...this.sessionCookieStrings(tokens),
     ])
   }
 
-  private cookie(name: string, value: string, maxAge: number): string {
-    return `${name}=${value}; Max-Age=${maxAge}; Path=/; HttpOnly; SameSite=Lax${COOKIE_SECURE}`
+  private cookie(name: string, value: string, maxAge: number, path = '/'): string {
+    return `${name}=${value}; Max-Age=${maxAge}; Path=${path}; HttpOnly; SameSite=Lax${COOKIE_SECURE}`
   }
 
   private clearCookie(name: string): string {
     return `${name}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax${COOKIE_SECURE}`
+  }
+
+  /** Raw Set-Cookie strings for the session pair (used by OAuth redirects). */
+  private sessionCookieStrings({ accessToken, refreshToken }: SessionTokens): string[] {
+    return [
+      this.cookie(ACCESS_COOKIE, accessToken, ACCESS_TOKEN_TTL_SECONDS),
+      this.cookie(REFRESH_COOKIE, refreshToken, REFRESH_TOKEN_TTL_SECONDS, REFRESH_COOKIE_PATH),
+    ]
+  }
+
+  /** Sets the session pair on a JSON reply via the Fastify cookie API. */
+  private setSessionCookies(reply: FastifyReply, { accessToken, refreshToken }: SessionTokens) {
+    reply
+      .cookie(ACCESS_COOKIE, accessToken, { ...COOKIE_DEFAULTS, maxAge: ACCESS_TOKEN_TTL_SECONDS })
+      .cookie(REFRESH_COOKIE, refreshToken, {
+        ...COOKIE_DEFAULTS,
+        path: REFRESH_COOKIE_PATH,
+        maxAge: REFRESH_TOKEN_TTL_SECONDS,
+      })
   }
 
   private sendRedirect(reply: FastifyReply, url: string, cookies: string[]) {
@@ -128,11 +160,9 @@ export class AuthController {
   @ApiBody({ type: RegisterDto })
   @ApiCreatedResponse({ schema: { example: { success: true } } })
   async register(@Body() dto: RegisterDto, @Res() reply: FastifyReply) {
-    const token = await this.authService.register(dto)
-    await reply
-      .cookie('token', token, { ...COOKIE_DEFAULTS, maxAge: TOKEN_TTL })
-      .status(201)
-      .send({ success: true })
+    const tokens = await this.authService.register(dto)
+    this.setSessionCookies(reply, tokens)
+    await reply.status(201).send({ success: true })
   }
 
   @Post('login')
@@ -141,16 +171,31 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @ApiOkResponse({ schema: { example: { success: true } } })
   async login(@Body() dto: LoginDto, @Res() reply: FastifyReply) {
-    const token = await this.authService.login(dto)
-    await reply
-      .cookie('token', token, { ...COOKIE_DEFAULTS, maxAge: TOKEN_TTL })
-      .send({ success: true })
+    const tokens = await this.authService.login(dto)
+    this.setSessionCookies(reply, tokens)
+    await reply.send({ success: true })
+  }
+
+  @Post('refresh')
+  @Throttle({ default: { ttl: THROTTLE_TTL, limit: THROTTLE_LIMITS.refresh } })
+  @HttpCode(200)
+  @ApiOkResponse({ schema: { example: { success: true } } })
+  async refresh(@Req() req: FastifyRequest, @Res() reply: FastifyReply) {
+    const token = req.cookies?.[REFRESH_COOKIE]
+    if (!token) throw new UnauthorizedException()
+    const tokens = await this.authService.rotateRefreshToken(token)
+    this.setSessionCookies(reply, tokens)
+    await reply.send({ success: true })
   }
 
   @Post('logout')
   @ApiOkResponse({ schema: { example: { success: true } } })
-  async logout(@Res() reply: FastifyReply) {
-    await reply.clearCookie('token', { path: '/' }).send({ success: true })
+  async logout(@Req() req: FastifyRequest, @Res() reply: FastifyReply) {
+    await this.authService.revokeSession(req.cookies?.[REFRESH_COOKIE])
+    await reply
+      .clearCookie(ACCESS_COOKIE, { path: '/' })
+      .clearCookie(REFRESH_COOKIE, { path: REFRESH_COOKIE_PATH })
+      .send({ success: true })
   }
 
   @Post('forgot-password')

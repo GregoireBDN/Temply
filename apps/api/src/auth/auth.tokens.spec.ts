@@ -59,6 +59,7 @@ describe('AuthService email verification tokens', () => {
     mockDb.insert
       .mockReturnValueOnce(buildChain([{ id: 'user-1', email: 'new@test.com' }])) // user
       .mockReturnValueOnce(buildChain([{}], inserted)) // verification token
+      .mockReturnValueOnce(buildChain([{}])) // session refresh token
 
     await service.register({ email: 'new@test.com', name: 'New', password: 'password123' })
 

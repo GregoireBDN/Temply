@@ -14,17 +14,26 @@ import {
   emailVerificationTokensTable,
   oauthAccountsTable,
   passwordResetTokensTable,
+  refreshTokensTable,
 } from '#/auth/auth.schema'
 import { EmailService } from '#/email/email.service'
 import { env } from '#/config/env'
 import { usersTable } from '#/user/user.schema'
 import {
+  ACCESS_TOKEN_TTL_SECONDS,
   AUTH_ERRORS,
   BCRYPT_SALT_ROUNDS,
   EMAIL_VERIFICATION_TTL_MS,
   PASSWORD_RESET_TTL_MS,
+  REFRESH_TOKEN_TTL_MS,
 } from './auth.constants'
 import type { ForgotPasswordDto, LoginDto, RegisterDto } from './dto/auth.dto'
+
+/** A freshly minted access token + refresh token pair for one session. */
+export interface SessionTokens {
+  accessToken: string
+  refreshToken: string
+}
 
 interface OAuthTokens {
   idToken(): string
@@ -128,7 +137,7 @@ export class AuthService implements OnModuleInit {
         ),
       )
 
-    if (existing) return this.issueToken(existing.userId)
+    if (existing) return this.createSession(existing.userId)
 
     const [user] = await this.db.db
       .insert(usersTable)
@@ -138,10 +147,10 @@ export class AuthService implements OnModuleInit {
       .insert(oauthAccountsTable)
       .values({ userId: user.id, provider, providerId })
 
-    return this.issueToken(user.id)
+    return this.createSession(user.id)
   }
 
-  async register(dto: RegisterDto): Promise<string> {
+  async register(dto: RegisterDto): Promise<SessionTokens> {
     const [existing] = await this.db.db
       .select({ id: usersTable.id })
       .from(usersTable)
@@ -155,7 +164,7 @@ export class AuthService implements OnModuleInit {
       .returning()
 
     await this.sendVerificationEmail(user.id, user.email)
-    return this.issueToken(user.id)
+    return this.createSession(user.id)
   }
 
   private async sendVerificationEmail(userId: string, email: string): Promise<void> {
@@ -214,7 +223,7 @@ export class AuthService implements OnModuleInit {
     await this.sendVerificationEmail(user.id, user.email)
   }
 
-  async login(dto: LoginDto): Promise<string> {
+  async login(dto: LoginDto): Promise<SessionTokens> {
     const [user] = await this.db.db
       .select()
       .from(usersTable)
@@ -225,15 +234,89 @@ export class AuthService implements OnModuleInit {
     const valid = await bcrypt.compare(dto.password, user.passwordHash)
     if (!valid) throw new UnauthorizedException('Invalid credentials')
 
-    return this.issueToken(user.id)
+    return this.createSession(user.id)
   }
 
-  issueToken(userId: string): string {
-    return this.jwt.sign({ sub: userId }, { expiresIn: 60 * 60 * 24 * 7 })
+  private hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex')
   }
 
-  verifyToken(token: string): { sub: string } {
-    return this.jwt.verify<{ sub: string }>(token)
+  private signAccessToken(userId: string): string {
+    return this.jwt.sign({ sub: userId }, { expiresIn: ACCESS_TOKEN_TTL_SECONDS })
+  }
+
+  /**
+   * Persists a new refresh token in the given family and returns the token pair.
+   * The token itself is random and returned to the caller; only its hash is
+   * stored, so a database leak cannot be replayed.
+   */
+  private async issueRefreshToken(userId: string, familyId: string): Promise<SessionTokens> {
+    const refreshToken = crypto.randomBytes(32).toString('hex')
+    await this.db.db.insert(refreshTokensTable).values({
+      userId,
+      familyId,
+      tokenHash: this.hashToken(refreshToken),
+      expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+    })
+    return { accessToken: this.signAccessToken(userId), refreshToken }
+  }
+
+  /** Starts a brand-new session (fresh family) after a successful auth. */
+  createSession(userId: string): Promise<SessionTokens> {
+    return this.issueRefreshToken(userId, crypto.randomUUID())
+  }
+
+  /**
+   * Rotates a refresh token: validates it, revokes it, and issues a new token in
+   * the same family. Presenting an already-revoked (or unknown/expired) token is
+   * treated as reuse — the entire family is revoked so a stolen token cannot be
+   * traded for a fresh session.
+   */
+  async rotateRefreshToken(token: string): Promise<SessionTokens> {
+    const tokenHash = this.hashToken(token)
+    const [record] = await this.db.db
+      .select()
+      .from(refreshTokensTable)
+      .where(eq(refreshTokensTable.tokenHash, tokenHash))
+
+    if (!record || record.expiresAt < new Date()) {
+      throw new UnauthorizedException(AUTH_ERRORS.INVALID_REFRESH_TOKEN)
+    }
+
+    // Reuse of an already-rotated/revoked token ⇒ likely theft: burn the family.
+    if (record.revokedAt) {
+      await this.revokeFamily(record.familyId)
+      throw new UnauthorizedException(AUTH_ERRORS.INVALID_REFRESH_TOKEN)
+    }
+
+    await this.db.db
+      .update(refreshTokensTable)
+      .set({ revokedAt: new Date() })
+      .where(eq(refreshTokensTable.id, record.id))
+
+    return this.issueRefreshToken(record.userId, record.familyId)
+  }
+
+  private async revokeFamily(familyId: string): Promise<void> {
+    await this.db.db
+      .update(refreshTokensTable)
+      .set({ revokedAt: new Date() })
+      .where(
+        and(
+          eq(refreshTokensTable.familyId, familyId),
+          isNull(refreshTokensTable.revokedAt),
+        ),
+      )
+  }
+
+  /** Logout: revoke the session behind the presented refresh token, if any. */
+  async revokeSession(token: string | undefined): Promise<void> {
+    if (!token) return
+    const [record] = await this.db.db
+      .select({ familyId: refreshTokensTable.familyId })
+      .from(refreshTokensTable)
+      .where(eq(refreshTokensTable.tokenHash, this.hashToken(token)))
+    if (record) await this.revokeFamily(record.familyId)
   }
 
   async getUser(userId: string) {
